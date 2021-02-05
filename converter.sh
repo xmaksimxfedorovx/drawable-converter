@@ -26,45 +26,48 @@ check_file_argument() {
 
 create_android_drawable() {
 	echo " Creating different dimensions (dips) of $1 ..."
-	mkdir -p drawable-xxxhdpi
-	mkdir -p drawable-xxhdpi
-	mkdir -p drawable-xhdpi
-	mkdir -p drawable-hdpi
-	mkdir -p drawable-mdpi
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxxhdpi
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxhdpi
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME/drawable-xhdpi
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME/drawable-hdpi
+	mkdir -p $ANDROID_OUTPUT_FOLDER_NAME/drawable-mdpi
 
 	if [ $1 = "ic_launcher.png" ]; then
 		echo "  App icon detected"
-		convert ic_launcher.png -resize 192x192 drawable-xxxhdpi/ic_launcher.png
-		convert ic_launcher.png -resize 144x144 drawable-xxhdpi/ic_launcher.png
-		convert ic_launcher.png -resize 96x96 drawable-xhdpi/ic_launcher.png
-		convert ic_launcher.png -resize 72x72 drawable-hdpi/ic_launcher.png
-		convert ic_launcher.png -resize 48x48 drawable-mdpi/ic_launcher.png
-		rm -i ic_launcher.png
+		convert ic_launcher.png -resize 192x192 $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxxhdpi/ic_launcher.png
+		convert ic_launcher.png -resize 144x144 $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxhdpi/ic_launcher.png
+		convert ic_launcher.png -resize 96x96 $ANDROID_OUTPUT_FOLDER_NAME/drawable-xhdpi/ic_launcher.png
+		convert ic_launcher.png -resize 72x72 $ANDROID_OUTPUT_FOLDER_NAME/drawable-hdpi/ic_launcher.png
+		convert ic_launcher.png -resize 48x48 $ANDROID_OUTPUT_FOLDER_NAME/drawable-mdpi/ic_launcher.png
 	else
-		convert $1 -resize 75% drawable-xxhdpi/$1
-		convert $1 -resize 67% drawable-xhdpi/$1
-		convert $1 -resize 50% drawable-hdpi/$1
-		convert $1 -resize 33% drawable-mdpi/$1
-		cp $1 drawable-xxxhdpi/$1
+		convert $1 -resize 75% $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxhdpi/$1
+		convert $1 -resize 67% $ANDROID_OUTPUT_FOLDER_NAME/drawable-xhdpi/$1
+		convert $1 -resize 50% $ANDROID_OUTPUT_FOLDER_NAME/drawable-hdpi/$1
+		convert $1 -resize 33% $ANDROID_OUTPUT_FOLDER_NAME/drawable-mdpi/$1
+		cp $1 $ANDROID_OUTPUT_FOLDER_NAME/drawable-xxxhdpi/$1
 	fi
 }
 
 create_ios_assets() {
+	readonly FOLDER_NAME="ios"
 	echo " Processing ios assets of $1 ..."
 	file_argument=$1
 	full_file_name="${file_argument##*/}"
 	file_extension="${full_file_name##*.}"
 	file_name="${full_file_name%.*}"
-	mkdir -p ios
-	convert $1 -resize 67% ios/$file_name@2x.$file_extension
-	convert $1 -resize 33% ios/$full_file_name
-	cp $1 ios/$file_name@3x.$file_extension
+	mkdir -p $FOLDER_NAME
+	convert $1 -resize 67% $FOLDER_NAME/$file_name@2x.$file_extension
+	convert $1 -resize 33% $FOLDER_NAME/$full_file_name
+	cp $1 $FOLDER_NAME/$file_name@3x.$file_extension
 }
 
 # Main script
 readonly MAX_NUMBER_OF_ARGUMENTS=2
 readonly IOS_PLATFORM_KEY="ios"
 readonly ANDROID_PLATFORM_KEY="android"
+readonly IOS_OUTPUT_FOLDER_NAME="ios"
+readonly ANDROID_OUTPUT_FOLDER_NAME="android"
 
 check_number_of_arguments $@
 
