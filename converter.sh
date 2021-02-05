@@ -1,5 +1,4 @@
-check_number_of_arguments()
-{
+check_number_of_arguments() {
 	if [ $# -eq 0 ]; then
 		echo "No arguments supplied"
 		exit
@@ -16,8 +15,21 @@ check_number_of_arguments()
 	fi
 }
 
-create_android_drawable()
-{
+check_platform_argument() {
+	if [ -z $1 ] || [ $1 != $IOS_PLATFORM_KEY ] && [ $1 != $ANDROID_PLATFORM_KEY ]; then
+		echo "Must specify first argument with value [$ANDROID_PLATFORM_KEY|$IOS_PLATFORM_KEY]"
+		exit
+	fi	
+}
+
+check_file_argument() {
+	if ! [ -f $1 ]; then
+		echo "file $1 not found"
+		exit
+	fi
+}
+
+create_android_drawable() {
 	mkdir -p drawable-xxxhdpi
 	mkdir -p drawable-xxhdpi
 	mkdir -p drawable-xhdpi
@@ -47,24 +59,16 @@ readonly MAX_NUMBER_OF_ARGUMENTS=3
 readonly IOS_PLATFORM_KEY="ios"
 readonly ANDROID_PLATFORM_KEY="android"
 
-check_number_of_arguments "$@"
+check_number_of_arguments $@
+check_platform_argument $1
+check_file_argument $2
 
-if ! [ -f "$1" ]; then
-	echo "$1 not found"
-	exit
-fi
-
-if [ -z "$2" ]; then
-	echo "No platform required argument supplied"
-	exit
-fi
-
-case $2 in
-	"android")
-		echo " Creating different dimensions (dips) of "$1" ..."
-		create_android_drawable $1
+case $1 in
+	$ANDROID_PLATFORM_KEY)
+		echo " Creating different dimensions (dips) of $2 ..."
+		create_android_drawable $2
 		;;
-	"ios")
+	$IOS_PLATFORM_KEY)
 		echo " Processing ios assets"
 		;;
 	*)
