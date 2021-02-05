@@ -4,11 +4,6 @@ check_number_of_arguments() {
 		exit
 	fi
 
-	if [ $# -lt $MIN_NUMBER_OF_ARGUMENTS ]; then
-		echo "Must specify at least $MIN_NUMBER_OF_ARGUMENTS arguments"
-		exit
-	fi
-
 	if [ $# -gt $MAX_NUMBER_OF_ARGUMENTS ]; then
 		echo "Can't specify more than $MAX_NUMBER_OF_ARGUMENTS arguments"
 		exit
@@ -30,6 +25,7 @@ check_file_argument() {
 }
 
 create_android_drawable() {
+	echo " Creating different dimensions (dips) of $1 ..."
 	mkdir -p drawable-xxxhdpi
 	mkdir -p drawable-xxhdpi
 	mkdir -p drawable-xhdpi
@@ -37,7 +33,7 @@ create_android_drawable() {
 	mkdir -p drawable-mdpi
 
 	if [ $1 = "ic_launcher.png" ]; then
-			echo "  App icon detected"
+		echo "  App icon detected"
 		convert ic_launcher.png -resize 192x192 drawable-xxxhdpi/ic_launcher.png
 		convert ic_launcher.png -resize 144x144 drawable-xxhdpi/ic_launcher.png
 		convert ic_launcher.png -resize 96x96 drawable-xhdpi/ic_launcher.png
@@ -49,11 +45,12 @@ create_android_drawable() {
 		convert $1 -resize 67% drawable-xhdpi/$1
 		convert $1 -resize 50% drawable-hdpi/$1
 		convert $1 -resize 33% drawable-mdpi/$1
-		mv $1 drawable-xxxhdpi/$1
+		cp $1 drawable-xxxhdpi/$1
 	fi
 }
 
 create_ios_assets() {
+	echo " Processing ios assets of $1 ..."
 	file_argument=$1
 	full_file_name="${file_argument##*/}"
 	file_extension="${full_file_name##*.}"
@@ -65,28 +62,38 @@ create_ios_assets() {
 }
 
 # Main script
-readonly MIN_NUMBER_OF_ARGUMENTS=2
-readonly MAX_NUMBER_OF_ARGUMENTS=3
+readonly MAX_NUMBER_OF_ARGUMENTS=2
 readonly IOS_PLATFORM_KEY="ios"
 readonly ANDROID_PLATFORM_KEY="android"
 
 check_number_of_arguments $@
-check_platform_argument $1
-check_file_argument $2
 
-case $1 in
-	$ANDROID_PLATFORM_KEY)
-		echo " Creating different dimensions (dips) of $2 ..."
-		create_android_drawable $2
-		;;
-	$IOS_PLATFORM_KEY)
-		echo " Processing ios assets of $2 ..."
-		create_ios_assets $2
-		;;
-	*)
-		echo " Only [$ANDROID_PLATFORM_KEY|$IOS_PLATFORM_KEY] value allowed"
-		exit
-		;;
-esac
+if [ $# -eq 1 ] && ! [ -f $1 ]; then
+	echo "Specify correct file name for command invoke without platform argument"
+	exit
+fi
+
+if [ $# -eq 1 ] && [ -f $1 ]; then
+	create_android_drawable $1
+	create_ios_assets $1
+fi
+
+if [ $# -eq $MAX_NUMBER_OF_ARGUMENTS ]; then
+	check_platform_argument $1
+	check_file_argument $2
+
+	case $1 in
+		$ANDROID_PLATFORM_KEY)
+			create_android_drawable $2
+			;;
+		$IOS_PLATFORM_KEY)
+			create_ios_assets $2
+			;;
+		*)
+			echo " Only [$ANDROID_PLATFORM_KEY|$IOS_PLATFORM_KEY] value allowed"
+			exit
+			;;
+	esac
+fi
 
 echo " Done"
