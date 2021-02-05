@@ -1,3 +1,21 @@
+check_number_of_arguments()
+{
+	if [ $# -eq 0 ]; then
+		echo "No arguments supplied"
+		exit
+	fi
+
+	if [ $# -lt $MIN_NUMBER_OF_ARGUMENTS ]; then
+		echo "Must specify at least $MIN_NUMBER_OF_ARGUMENTS arguments"
+		exit
+	fi
+
+	if [ $# -gt $MAX_NUMBER_OF_ARGUMENTS ]; then
+		echo "Can't specify more than $MAX_NUMBER_OF_ARGUMENTS arguments"
+		exit
+	fi
+}
+
 create_android_drawable()
 {
 	mkdir -p drawable-xxxhdpi
@@ -24,10 +42,12 @@ create_android_drawable()
 }
 
 # Main script
-if [ $# -eq 0 ]; then
-	echo "No arguments supplied"
-	exit
-fi
+readonly MIN_NUMBER_OF_ARGUMENTS=2
+readonly MAX_NUMBER_OF_ARGUMENTS=3
+readonly IOS_PLATFORM_KEY="ios"
+readonly ANDROID_PLATFORM_KEY="android"
+
+check_number_of_arguments "$@"
 
 if ! [ -f "$1" ]; then
 	echo "$1 not found"
