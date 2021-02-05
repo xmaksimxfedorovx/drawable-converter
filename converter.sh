@@ -23,19 +23,34 @@ create_android_drawable()
 	fi
 }
 
+# Main script
 if [ $# -eq 0 ]; then
 	echo "No arguments supplied"
 	exit
 fi
 
 if ! [ -f "$1" ]; then
-	echo "$1 not found."
+	echo "$1 not found"
 	exit
 fi
 
-# Main script
-echo " Creating different dimensions (dips) of "$1" ..."
+if [ -z "$2" ]; then
+	echo "No platform required argument supplied"
+	exit
+fi
 
-create_android_drawable $1
+case $2 in
+	"android")
+		echo " Creating different dimensions (dips) of "$1" ..."
+		create_android_drawable $1
+		;;
+	"ios")
+		echo " Processing ios assets"
+		;;
+	*)
+		echo " Only [android|ios] value allowed"
+		exit
+		;;
+esac
 
 echo " Done"
