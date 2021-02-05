@@ -53,6 +53,17 @@ create_android_drawable() {
 	fi
 }
 
+create_ios_assets() {
+	file_argument=$1
+	full_file_name="${file_argument##*/}"
+	file_extension="${full_file_name##*.}"
+	file_name="${full_file_name%.*}"
+	mkdir -p ios
+	convert $1 -resize 67% ios/$file_name@2x.$file_extension
+	convert $1 -resize 33% ios/$full_file_name
+	cp $1 ios/$file_name@3x.$file_extension
+}
+
 # Main script
 readonly MIN_NUMBER_OF_ARGUMENTS=2
 readonly MAX_NUMBER_OF_ARGUMENTS=3
@@ -69,10 +80,11 @@ case $1 in
 		create_android_drawable $2
 		;;
 	$IOS_PLATFORM_KEY)
-		echo " Processing ios assets"
+		echo " Processing ios assets of $2 ..."
+		create_ios_assets $2
 		;;
 	*)
-		echo " Only [android|ios] value allowed"
+		echo " Only [$ANDROID_PLATFORM_KEY|$IOS_PLATFORM_KEY] value allowed"
 		exit
 		;;
 esac
